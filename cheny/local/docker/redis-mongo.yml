@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Redis 服务配置
+  redis:
+    image: redis:latest
+    container_name: app-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      # 持久化存储 Redis 数据
+      - C:\\Users\\cheny\\Documents\\workspace\\env\\opt\\redis\\data:/data
+      # Redis 配置文件
+      - C:\\Users\\cheny\\Documents\\workspace\\env\\opt\\redis\\conf\\redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+  mongodb:
+    # 使用官方 MongoDB 镜像，默认使用最新版本
+    image: mongo:latest
+    # 容器名称
+    container_name: mongodb
+    # 重启策略：总是重启
+    restart: always
+    # 暴露端口，主机端口:容器端口
+    ports:
+      - "27017:27017"
+    # 环境变量配置
+    environment:
+      # MongoDB 根用户名
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      # MongoDB 根用户密码
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+    # 数据卷配置，持久化存储数据
+    volumes:
+      - C:\\Users\\cheny\\Documents\\workspace\\env\\opt\\mongo\\data:/data/db
+# 网络配置
+networks:
+  app-network:
+    driver: bridge
